@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "./api";
+import { getAuthToken } from "./auth-context";
 
 export interface Note {
   id: string;
@@ -20,11 +21,13 @@ const NotesContext = createContext<NotesContextType | undefined>(undefined);
 
 export function NotesProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
+  const token = getAuthToken();
 
   const { data: notes = [], isLoading, error } = useQuery<Note[]>({
     queryKey: ["notes"],
     queryFn: api.notes.getAll,
     retry: false,
+    enabled: !!token, // Only fetch if authenticated
   });
 
   const addNoteMutation = useMutation({

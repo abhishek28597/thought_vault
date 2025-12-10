@@ -1,6 +1,7 @@
 import { getAuthToken } from "./auth-context";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Use same origin since Express proxies to Python backend
+const API_URL = "";
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
   const token = getAuthToken();

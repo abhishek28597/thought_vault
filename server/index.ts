@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { createProxyMiddleware } from "http-proxy-middleware";
+import { spawn } from "child_process";
 
 const app = express();
 const httpServer = createServer(app);
@@ -11,6 +13,51 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+// Start Python backend
+const BACKEND_PORT = 8000;
+let backendProcess: ReturnType<typeof spawn> | null = null;
+
+function startBackend() {
+  console.log("Starting Python FastAPI backend...");
+  backendProcess = spawn("python", ["run.py"], {
+    cwd: "./backend",
+    stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, BACKEND_PORT: String(BACKEND_PORT) }
+  });
+
+  backendProcess.stdout?.on("data", (data: Buffer) => {
+    console.log(`[backend] ${data.toString().trim()}`);
+  });
+
+  backendProcess.stderr?.on("data", (data: Buffer) => {
+    console.log(`[backend] ${data.toString().trim()}`);
+  });
+
+  backendProcess.on("close", (code: number | null) => {
+    console.log(`Backend process exited with code ${code}`);
+    // Restart after 2 seconds if it crashed
+    setTimeout(() => {
+      if (backendProcess) {
+        startBackend();
+      }
+    }, 2000);
+  });
+}
+
+// Start backend
+startBackend();
+
+// Wait for backend to be ready
+setTimeout(() => {
+  console.log("Backend should be ready now");
+}, 3000);
+
+// Proxy /api requests to Python backend (keep /api prefix)
+app.use("/api", createProxyMiddleware({
+  target: `http://127.0.0.1:${BACKEND_PORT}/api`,
+  changeOrigin: true,
+}));
 
 app.use(
   express.json({
@@ -96,3 +143,18 @@ app.use((req, res, next) => {
     },
   );
 })();
+
+// Cleanup on exit
+process.on("SIGINT", () => {
+  if (backendProcess) {
+    backendProcess.kill();
+  }
+  process.exit();
+});
+
+process.on("SIGTERM", () => {
+  if (backendProcess) {
+    backendProcess.kill();
+  }
+  process.exit();
+});
