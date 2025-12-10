@@ -4,3 +4,29 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Replit state files
+.local/
+.replit
+replit.nix
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+backend/__pycache__/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+client/.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
