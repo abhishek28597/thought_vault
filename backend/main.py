@@ -59,7 +59,7 @@ def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     
     token = create_access_token({"sub": str(new_user.id)})
-    return {"id": new_user.id, "username": new_user.username, "token": token}
+    return {"id": str(new_user.id), "username": new_user.username, "token": token}
 
 @app.post("/api/auth/signin", response_model=UserResponse)
 def signin(user_data: UserLogin, db: Session = Depends(get_db)):
@@ -68,12 +68,12 @@ def signin(user_data: UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     token = create_access_token({"sub": str(user.id)})
-    return {"id": user.id, "username": user.username, "token": token}
+    return {"id": str(user.id), "username": user.username, "token": token}
 
 @app.get("/api/auth/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     token = create_access_token({"sub": str(current_user.id)})
-    return {"id": current_user.id, "username": current_user.username, "token": token}
+    return {"id": str(current_user.id), "username": current_user.username, "token": token}
 
 @app.post("/api/notes", response_model=NoteResponse)
 def create_note(
