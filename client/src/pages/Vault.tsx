@@ -1,27 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { TerminalLayout } from "@/components/layout/TerminalLayout";
 import { useNotes, Note } from "@/lib/notes-context";
-import { format, getYear, getMonth, getDate, parse } from "date-fns";
+import { getYear } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { Folder, File, ChevronRight, Calendar, HardDrive, Database } from "lucide-react";
+import { Folder, ChevronRight, Calendar, HardDrive, Database, Loader2 } from "lucide-react";
 
 type ViewMode = "years" | "months" | "days" | "notes";
 
 export default function Vault() {
-  const { notes } = useNotes();
+  const { notes, isLoading } = useNotes();
   const [viewMode, setViewMode] = useState<ViewMode>("years");
-  const [selectedYear, setSelectedYear] = useState<string | null>(null); // Changed to string to match key
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null); // Changed to string
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
-  // Group notes by Year -> Month -> Day
-  const groupedNotes = React.useMemo(() => {
+  const groupedNotes = useMemo(() => {
     const tree: Record<string, Record<string, Record<string, Note[]>>> = {};
 
     notes.forEach((note) => {
-      const year = getYear(note.timestamp).toString();
-      const month = format(note.timestamp, "MMMM");
-      const day = format(note.timestamp, "yyyy-MM-dd");
+      const date = new Date(note.timestamp);
+      const year = getYear(date).toString();
+      const month = date.toLocaleString('default', { month: 'long' });
+      const day = date.toISOString().split('T')[0];
 
       if (!tree[year]) tree[year] = {};
       if (!tree[year][month]) tree[year][month] = {};
@@ -35,37 +35,15 @@ export default function Vault() {
 
   const years = Object.keys(groupedNotes).sort((a, b) => Number(b) - Number(a));
 
-  const handleYearClick = (year: string) => {
-    setSelectedYear(year);
-    setViewMode("months");
-  };
-
-  const handleMonthClick = (month: string) => {
-    setSelectedMonth(month);
-    setViewMode("days");
-  };
-
-  const handleDayClick = (day: string) => {
-    setSelectedDay(day);
-    setViewMode("notes");
-  };
-
-  const handleBack = () => {
-    if (viewMode === "notes") setViewMode("days");
-    else if (viewMode === "days") setViewMode("months");
-    else if (viewMode === "months") setViewMode("years");
-  };
-
-  // Breadcrumbs
   const Breadcrumbs = () => (
     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6 font-mono">
-       <button onClick={() => { setViewMode("years"); setSelectedYear(null); }} className="hover:text-primary transition-colors flex items-center">
+       <button onClick={() => { setViewMode("years"); setSelectedYear(null); }} className="hover:text-primary transition-colors flex items-center" data-testid="breadcrumb-root">
          <HardDrive className="w-4 h-4 mr-1" /> root
        </button>
        {selectedYear && (
          <>
            <ChevronRight className="w-4 h-4" />
-           <button onClick={() => { setViewMode("months"); setSelectedMonth(null); }} className="hover:text-primary transition-colors">
+           <button onClick={() => { setViewMode("months"); setSelectedMonth(null); }} className="hover:text-primary transition-colors" data-testid="breadcrumb-year">
              {selectedYear}
            </button>
          </>
@@ -73,7 +51,7 @@ export default function Vault() {
        {selectedMonth && (
          <>
            <ChevronRight className="w-4 h-4" />
-           <button onClick={() => { setViewMode("days"); setSelectedDay(null); }} className="hover:text-primary transition-colors">
+           <button onClick={() => { setViewMode("days"); setSelectedDay(null); }} className="hover:text-primary transition-colors" data-testid="breadcrumb-month">
              {selectedMonth}
            </button>
          </>
@@ -86,6 +64,17 @@ export default function Vault() {
        )}
     </div>
   );
+
+  if (isLoading) {
+    return (
+      <TerminalLayout>
+        <div className="flex items-center justify-center min-h-[400px] text-primary">
+          <Loader2 className="w-8 h-8 animate-spin" />
+          <span className="ml-3">Loading archive index...</span>
+        </div>
+      </TerminalLayout>
+    );
+  }
 
   return (
     <TerminalLayout>
@@ -114,8 +103,9 @@ export default function Vault() {
                 {years.map((year) => (
                   <button
                     key={year}
-                    onClick={() => handleYearClick(year)}
+                    onClick={() => { setSelectedYear(year); setViewMode("months"); }}
                     className="group p-6 border border-border hover:border-primary/50 bg-card/30 hover:bg-card/80 transition-all flex flex-col items-center gap-4 aspect-square justify-center"
+                    data-testid={`folder-year-${year}`}
                   >
                     <Folder className="w-16 h-16 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
                     <span className="text-xl font-bold font-mono group-hover:text-primary group-hover:text-glow transition-all">{year}</span>
@@ -136,8 +126,9 @@ export default function Vault() {
                 {Object.keys(groupedNotes[selectedYear]).map((month) => (
                   <button
                     key={month}
-                    onClick={() => handleMonthClick(month)}
+                    onClick={() => { setSelectedMonth(month); setViewMode("days"); }}
                     className="group p-6 border border-border hover:border-primary/50 bg-card/30 hover:bg-card/80 transition-all flex flex-col items-center gap-4 aspect-square justify-center"
+                    data-testid={`folder-month-${month}`}
                   >
                     <Folder className="w-12 h-12 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
                     <span className="text-lg font-bold font-mono group-hover:text-primary transition-colors uppercase">{month}</span>
@@ -157,8 +148,9 @@ export default function Vault() {
                 {Object.keys(groupedNotes[selectedYear][selectedMonth]).map((day) => (
                    <button
                     key={day}
-                    onClick={() => handleDayClick(day)}
+                    onClick={() => { setSelectedDay(day); setViewMode("notes"); }}
                     className="group p-4 border border-border hover:border-primary/50 bg-card/30 hover:bg-card/80 transition-all flex flex-col items-start gap-2 h-32"
+                    data-testid={`folder-day-${day}`}
                   >
                     <div className="flex items-center gap-2 w-full border-b border-border/30 pb-2 mb-1">
                       <Calendar className="w-4 h-4 text-primary" />
@@ -187,13 +179,13 @@ export default function Vault() {
                  className="space-y-4"
               >
                 {groupedNotes[selectedYear][selectedMonth][selectedDay].map((note) => (
-                  <div key={note.id} className="border border-border p-6 bg-card/50 relative overflow-hidden group hover:border-primary/50 transition-colors">
+                  <div key={note.id} className="border border-border p-6 bg-card/50 relative overflow-hidden group hover:border-primary/50 transition-colors" data-testid={`note-detail-${note.id}`}>
                      <div className="absolute top-0 right-0 p-2 opacity-50 text-[10px] uppercase tracking-widest border-l border-b border-border text-primary bg-background/50">
                         Encrypted
                      </div>
                      <div className="mb-4 flex items-center gap-2 text-sm text-primary font-mono">
                         <span className="w-2 h-2 bg-primary animate-pulse" />
-                        {format(note.timestamp, "HH:mm:ss")}
+                        {new Date(note.timestamp).toLocaleTimeString([], { hour12: false })}
                      </div>
                      <p className="font-mono text-foreground/90 leading-relaxed whitespace-pre-wrap">
                        {note.content}
