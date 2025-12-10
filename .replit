@@ -9,7 +9,6 @@ packages = ["cargo", "libiconv", "libxcrypt", "rustc"]
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-publicDir = "dist/public"
 run = ["npm", "run", "start"]
 
 [[ports]]
@@ -19,10 +18,6 @@ externalPort = 80
 [[ports]]
 localPort = 8000
 externalPort = 8000
-
-[[ports]]
-localPort = 36427
-externalPort = 3000
 
 [env]
 PORT = "5000"
