@@ -32,17 +32,13 @@ export function TerminalLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex items-center gap-6">
-          <Link href="/">
-            <a className={cn("hover:text-primary transition-colors flex items-center gap-1", location === "/" && "text-primary text-glow font-bold")} data-testid="link-dashboard">
-              <Cpu className="w-4 h-4" />
-              <span className="hidden sm:inline">Input_Stream</span>
-            </a>
+          <Link href="/" className={cn("hover:text-primary transition-colors flex items-center gap-1", location === "/" && "text-primary text-glow font-bold")} data-testid="link-dashboard">
+            <Cpu className="w-4 h-4" />
+            <span className="hidden sm:inline">Input_Stream</span>
           </Link>
-          <Link href="/vault">
-            <a className={cn("hover:text-primary transition-colors flex items-center gap-1", location === "/vault" && "text-primary text-glow font-bold")} data-testid="link-vault">
-              <Folder className="w-4 h-4" />
-              <span className="hidden sm:inline">Data_Archive</span>
-            </a>
+          <Link href="/vault" className={cn("hover:text-primary transition-colors flex items-center gap-1", location === "/vault" && "text-primary text-glow font-bold")} data-testid="link-vault">
+            <Folder className="w-4 h-4" />
+            <span className="hidden sm:inline">Data_Archive</span>
           </Link>
           <button 
             onClick={logout} 

@@ -148,10 +148,8 @@ export default function SignUp() {
         <div className="text-center pt-4 border-t border-border">
           <p className="text-sm text-muted-foreground">
             Already Have Access?{" "}
-            <Link href="/signin">
-              <a className="text-primary hover:text-glow transition-all" data-testid="link-signin">
-                Sign In
-              </a>
+            <Link href="/signin" className="text-primary hover:text-glow transition-all" data-testid="link-signin">
+              Sign In
             </Link>
           </p>
         </div>
