@@ -14,7 +14,8 @@ declare module "http" {
   }
 }
 
-// Start Python backend
+// Backend configuration - uses env var for Docker, falls back to spawning locally
+const BACKEND_URL = process.env.BACKEND_URL || "";
 const BACKEND_PORT = 8000;
 let backendProcess: ReturnType<typeof spawn> | null = null;
 
@@ -45,17 +46,22 @@ function startBackend() {
   });
 }
 
-// Start backend
-startBackend();
+// Only spawn backend locally if BACKEND_URL is not set (not in Docker)
+if (!BACKEND_URL) {
+  startBackend();
+  
+  // Wait for backend to be ready
+  setTimeout(() => {
+    console.log("Backend should be ready now");
+  }, 3000);
+}
 
-// Wait for backend to be ready
-setTimeout(() => {
-  console.log("Backend should be ready now");
-}, 3000);
+// Proxy /api requests to Python backend
+const backendTarget = BACKEND_URL || `http://127.0.0.1:${BACKEND_PORT}`;
+console.log(`Proxying /api requests to: ${backendTarget}`);
 
-// Proxy /api requests to Python backend (keep /api prefix)
 app.use("/api", createProxyMiddleware({
-  target: `http://127.0.0.1:${BACKEND_PORT}/api`,
+  target: `${backendTarget}/api`,
   changeOrigin: true,
 }));
 
@@ -146,14 +152,14 @@ app.use((req, res, next) => {
 
 // Cleanup on exit
 process.on("SIGINT", () => {
-  if (backendProcess) {
+  if (backendProcess && !BACKEND_URL) {
     backendProcess.kill();
   }
   process.exit();
 });
 
 process.on("SIGTERM", () => {
-  if (backendProcess) {
+  if (backendProcess && !BACKEND_URL) {
     backendProcess.kill();
   }
   process.exit();

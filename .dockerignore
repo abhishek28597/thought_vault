@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+backend/__pycache__/
+backend/*.pyc
+
+# Build outputs
+dist/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files (we use docker-compose env vars)
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Development
+*.md
+!README.md
+
+# Replit specific
+.replit
+replit.nix
+replit.md
+.cache/
+
