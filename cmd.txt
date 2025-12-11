@@ -1,0 +1,103 @@
+================================================================================
+                        THOUGHT VAULT - ARCHIVE TERMINAL
+                              COMMAND REFERENCE v1.0
+================================================================================
+
+This terminal operates within the Data_Archive system, allowing you to navigate
+and query your encrypted thought streams using command-line syntax.
+
+The terminal is always grounded at ROOT (/) - outside all folders in archive.
+
+--------------------------------------------------------------------------------
+AVAILABLE COMMANDS:
+--------------------------------------------------------------------------------
+
+1. where
+   -------
+   Description: Displays your current location in the archive directory tree.
+   Usage:       where
+   Example:     
+                > where
+                /root
+                
+                > where
+                /root/2025/December/2025-12-11
+
+2. list
+   -------
+   Description: Lists all subfolders/items in the current directory.
+   Usage:       list
+   Example:     
+                > list
+                [DIR]  2024/
+                [DIR]  2025/
+
+                > list
+                [DIR]  January/
+                [DIR]  February/
+                [DIR]  December/
+
+3. show <date>
+   -------
+   Description: Displays all messages/entries for a specific date.
+   Usage:       show YYYY-MM-DD
+   Example:     
+                > show 2025-12-11
+                ┌──────────────────────────────────────────────
+                │ DATE: 2025-12-11
+                │ ENTRIES: 3
+                ├──────────────────────────────────────────────
+                │ [14:30:22] First thought of the day...
+                │ [16:45:10] Another important idea...
+                │ [22:15:33] Late night reflection...
+                └──────────────────────────────────────────────
+
+4. cd <directory>
+   -------
+   Description: Change directory. Navigate into folders or go back.
+   Usage:       cd <folder_name>   - Enter a folder
+                cd ..              - Go back one level
+                cd /               - Return to root
+   Example:     
+                > cd 2025
+                Changed to /root/2025
+
+                > cd ..
+                Changed to /root
+
+                > cd /
+                Changed to /root
+
+5. help
+   -------
+   Description: Display this command reference.
+   Usage:       help
+
+6. clear
+   -------
+   Description: Clear the terminal output.
+   Usage:       clear
+
+--------------------------------------------------------------------------------
+KEYBOARD SHORTCUTS:
+--------------------------------------------------------------------------------
+
+  Enter          Execute command
+  Up Arrow       Previous command (history)
+  Down Arrow     Next command (history)
+  Ctrl + L       Clear terminal
+  Tab            Auto-complete (if available)
+
+--------------------------------------------------------------------------------
+NOTES:
+--------------------------------------------------------------------------------
+
+- All commands are case-insensitive
+- Directory names are case-sensitive
+- The terminal maintains command history for your session
+- Invalid commands will display an error message
+
+================================================================================
+                          END OF COMMAND REFERENCE
+================================================================================
+

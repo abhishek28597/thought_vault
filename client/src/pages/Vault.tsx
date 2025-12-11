@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { TerminalLayout } from "@/components/layout/TerminalLayout";
+import { ArchiveTerminal } from "@/components/ArchiveTerminal";
 import { useNotes, Note } from "@/lib/notes-context";
 import { getYear } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { Folder, ChevronRight, Calendar, HardDrive, Database, Loader2 } from "lucide-react";
+import { Folder, ChevronRight, Calendar, HardDrive, Database, Loader2, Terminal, ChevronUp } from "lucide-react";
 
 type ViewMode = "years" | "months" | "days" | "notes";
 
@@ -13,6 +14,7 @@ export default function Vault() {
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(true); // Start with terminal open
 
   const groupedNotes = useMemo(() => {
     const tree: Record<string, Record<string, Record<string, Note[]>>> = {};
@@ -34,6 +36,31 @@ export default function Vault() {
   }, [notes]);
 
   const years = Object.keys(groupedNotes).sort((a, b) => Number(b) - Number(a));
+
+  // Handle terminal navigation
+  const handleTerminalNavigate = useCallback((path: { year?: string; month?: string; day?: string }) => {
+    if (!path.year) {
+      setViewMode("years");
+      setSelectedYear(null);
+      setSelectedMonth(null);
+      setSelectedDay(null);
+    } else if (path.year && !path.month) {
+      setViewMode("months");
+      setSelectedYear(path.year);
+      setSelectedMonth(null);
+      setSelectedDay(null);
+    } else if (path.year && path.month && !path.day) {
+      setViewMode("days");
+      setSelectedYear(path.year);
+      setSelectedMonth(path.month);
+      setSelectedDay(null);
+    } else if (path.year && path.month && path.day) {
+      setViewMode("notes");
+      setSelectedYear(path.year);
+      setSelectedMonth(path.month);
+      setSelectedDay(path.day);
+    }
+  }, []);
 
   const Breadcrumbs = () => (
     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6 font-mono">
@@ -78,13 +105,24 @@ export default function Vault() {
 
   return (
     <TerminalLayout>
-      <div className="max-w-5xl mx-auto h-full">
+      <div className={`max-w-5xl mx-auto h-full transition-all duration-200 ${isTerminalOpen ? 'pb-64' : ''}`}>
         <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
           <h1 className="text-2xl font-bold flex items-center gap-2 text-primary">
             <Database className="w-6 h-6" /> ARCHIVE_INDEX
           </h1>
-          <div className="text-xs text-muted-foreground">
-            Total Records: {notes.length}
+          <div className="flex items-center gap-4">
+            <div className="text-xs text-muted-foreground">
+              Total Records: {notes.length}
+            </div>
+            <button
+              onClick={() => setIsTerminalOpen(!isTerminalOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs uppercase tracking-wider border border-primary bg-primary/20 text-primary hover:bg-primary/30 transition-all"
+              data-testid="toggle-terminal"
+            >
+              <Terminal className="w-4 h-4" />
+              <span>Terminal</span>
+              <ChevronUp className={`w-3 h-3 transition-transform ${isTerminalOpen ? 'rotate-180' : ''}`} />
+            </button>
           </div>
         </div>
 
@@ -197,6 +235,13 @@ export default function Vault() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Archive Terminal */}
+      <ArchiveTerminal
+        isOpen={isTerminalOpen}
+        onToggle={() => setIsTerminalOpen(false)}
+        onNavigate={handleTerminalNavigate}
+      />
     </TerminalLayout>
   );
 }
