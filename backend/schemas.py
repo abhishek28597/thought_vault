@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class UserCreate(BaseModel):
@@ -26,3 +26,20 @@ class NoteResponse(BaseModel):
     content: str
     timestamp: str
     isEncrypted: bool
+
+class EmbeddingResponse(BaseModel):
+    id: str
+    note_id: str
+    content: str
+    timestamp: str
+    embedding: List[float]
+    coords_3d: Optional[List[float]] = None
+
+class EmbeddingsListResponse(BaseModel):
+    embeddings: List[EmbeddingResponse]
+    total: int
+
+class GenerateEmbeddingsResponse(BaseModel):
+    generated: int
+    total: int
+    message: str

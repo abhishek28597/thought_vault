@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { NotesProvider } from "@/lib/notes-context";
 import Dashboard from "@/pages/Dashboard";
 import Vault from "@/pages/Vault";
+import Vectors from "@/pages/Vectors";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
 import NotFound from "@/pages/not-found";
@@ -60,6 +61,9 @@ function Router() {
       </Route>
       <Route path="/vault">
         <ProtectedRoute component={Vault} />
+      </Route>
+      <Route path="/vectors">
+        <ProtectedRoute component={Vectors} />
       </Route>
       <Route component={NotFound} />
     </Switch>
