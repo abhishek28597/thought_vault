@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Terminal, Folder, Lock, Wifi, Battery, Cpu, ShieldCheck, LogOut } from "lucide-react";
+import { Terminal, Folder, Lock, Wifi, Battery, Cpu, ShieldCheck, LogOut, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 
@@ -39,6 +39,10 @@ export function TerminalLayout({ children }: { children: React.ReactNode }) {
           <Link href="/vault" className={cn("hover:text-primary transition-colors flex items-center gap-1", location === "/vault" && "text-primary text-glow font-bold")} data-testid="link-vault">
             <Folder className="w-4 h-4" />
             <span className="hidden sm:inline">Data_Archive</span>
+          </Link>
+          <Link href="/vectors" className={cn("hover:text-primary transition-colors flex items-center gap-1", location === "/vectors" && "text-primary text-glow font-bold")} data-testid="link-vectors">
+            <GitBranch className="w-4 h-4" />
+            <span className="hidden sm:inline">Vectors</span>
           </Link>
           <button 
             onClick={logout} 
