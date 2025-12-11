@@ -1,7 +1,7 @@
 [project]
-name = "repl-nix-workspace"
-version = "0.1.0"
-description = "Add your description here"
+name = "thoughtvault"
+version = "1.0.0"
+description = "A secure personal notes vault with a terminal-inspired hacker aesthetic"
 requires-python = ">=3.11"
 dependencies = [
     "bcrypt>=5.0.0",
